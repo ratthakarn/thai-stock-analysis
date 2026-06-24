@@ -21,6 +21,13 @@ export async function getQuote(symbol: string) {
     pe: result.trailingPE ?? null,
     marketCap: result.marketCap ?? null,
     pbv: result.priceToBook ?? null,
+    rsi: null,
+    macd: null,
+    macdSignal: null,
+    sma20: null,
+    sma50: null,
+    sma200: null,
+    roe: null,
   }
 }
 

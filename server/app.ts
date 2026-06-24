@@ -1,6 +1,6 @@
 import express from 'express'
 import { getQuote, getHistory, getIndexQuote } from './services/yahoo'
-import { getAllStocks, getMarketBreadth, getTopMovers } from './services/tradingview'
+import { getMarketBreadth, getTopMovers } from './services/tradingview'
 import { computeIndicators } from './services/indicators'
 import { analyzeStock, summarizeNews } from './services/claude'
 import { fetchNews } from './services/news'

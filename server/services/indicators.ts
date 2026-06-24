@@ -8,8 +8,6 @@ function pad<T>(arr: T[], targetLen: number, fill: T): T[] {
 
 export function computeIndicators(bars: OHLCVBar[]): ChartBar[] {
   const closes = bars.map(b => b.close)
-  const highs = bars.map(b => b.high)
-  const lows = bars.map(b => b.low)
   const volumes = bars.map(b => b.volume)
   const n = bars.length
 
@@ -26,11 +24,10 @@ export function computeIndicators(bars: OHLCVBar[]): ChartBar[] {
   const bbMiddle = pad(bbRaw.map(b => b.middle), n, null as unknown as number)
   const bbLower = pad(bbRaw.map(b => b.lower), n, null as unknown as number)
 
-  const obvRaw = TI.OBV.calculate({ closePrice: closes, volume: volumes })
+  const obvRaw = TI.OBV.calculate({ close: closes, volume: volumes })
   const obv = pad(obvRaw, n, null as unknown as number)
 
   return bars.map((bar, i) => {
-    const prev = i > 0 ? bars[i - 1].volume : bar.volume
     const delta = bar.close > (i > 0 ? bars[i - 1].close : bar.close) ? bar.volume : -bar.volume
     return {
       ...bar,
