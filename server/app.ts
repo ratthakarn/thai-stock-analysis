@@ -122,4 +122,10 @@ app.post('/api/cron/screener', async (req, res) => {
   }
 })
 
+// Global error handler — prevents FUNCTION_INVOCATION_FAILED on Vercel
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err)
+  res.status(500).json({ error: err.message })
+})
+
 export default app
