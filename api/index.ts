@@ -1,4 +1,4 @@
-// Pre-bundled server (see esbuild.server.mjs) — avoids Vercel TypeScript bundling issues
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const app = require('./server-bundle.cjs')
-export default app.default ?? app
+import { createRequire } from 'module'
+const _require = createRequire(import.meta.url)
+const bundle = _require('./server-bundle.cjs') as { default?: unknown }
+export default bundle.default ?? bundle
