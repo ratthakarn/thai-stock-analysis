@@ -25,3 +25,5 @@ dist-ssr
 .env
 .env.local
 .vercel
+api/server-bundle.cjs
+api/app.mjs

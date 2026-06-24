@@ -1,11 +1,4 @@
-import express from 'express'
-import * as screener from '../server/services/screener.js'
-
-const app = express()
-app.use(express.json())
-
-app.get('/api/debug', (_req, res) => {
-  res.json({ screener: typeof screener, keys: Object.keys(screener) })
-})
-
-export default app
+// Pre-bundled server (see esbuild.server.mjs) — avoids Vercel TypeScript bundling issues
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const app = require('./server-bundle.cjs')
+export default app.default ?? app
