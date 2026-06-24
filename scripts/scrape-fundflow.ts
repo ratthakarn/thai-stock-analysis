@@ -1,0 +1,55 @@
+/**
+ * Fund Flow scraper — รันบน local เท่านั้น (ต้องใช้ residential IP)
+ * npm run scrape:fundflow
+ */
+import 'dotenv/config'
+import { chromium } from 'playwright'
+import { putObject, getObject } from '../server/services/filebase'
+import type { FundFlowDay } from '../src/types'
+
+async function scrape(): Promise<FundFlowDay[]> {
+  const browser = await chromium.launch({ headless: false })
+  const page = await browser.newPage()
+  await page.goto('https://www.set.or.th/th/market/get-in-the-market/report/investor-type', {
+    waitUntil: 'networkidle',
+    timeout: 30000,
+  })
+
+  const raw = await page.evaluate(async () => {
+    const res = await fetch('/api/set/market/SET/investor-type-chart?period=5D')
+    return res.json()
+  })
+  await browser.close()
+
+  if (!raw?.investorTypeChartData) throw new Error('Unexpected response from SET API')
+
+  const rows: FundFlowDay[] = raw.investorTypeChartData.map((d: Record<string, unknown>) => ({
+    date: String(d.date),
+    foreign: Number(d.foreign ?? 0) / 1e6,
+    institution: Number(d.institution ?? 0) / 1e6,
+    proprietary: Number(d.proprietary ?? 0) / 1e6,
+    individual: Number(d.individual ?? 0) / 1e6,
+  }))
+
+  return rows
+}
+
+async function main() {
+  console.log('Scraping fund flow from SET...')
+  const newData = await scrape()
+
+  const existing = await getObject<FundFlowDay[]>('fundflow-history.json') ?? []
+  const merged = [...existing]
+  for (const row of newData) {
+    const idx = merged.findIndex(r => r.date === row.date)
+    if (idx >= 0) merged[idx] = row
+    else merged.push(row)
+  }
+  merged.sort((a, b) => a.date.localeCompare(b.date))
+  const last30 = merged.slice(-30)
+
+  await putObject('fundflow-history.json', last30)
+  console.log(`Saved ${last30.length} days of fund flow data`)
+}
+
+main().catch(console.error)
