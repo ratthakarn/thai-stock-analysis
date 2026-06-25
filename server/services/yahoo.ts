@@ -1,6 +1,6 @@
 import YahooFinance from 'yahoo-finance2'
 
-const yf = new YahooFinance({ suppressNotices: ['yahooSurvey'] })
+const yf = new YahooFinance({ suppressNotices: ['yahooSurvey', 'ripHistorical'] })
 
 export async function getQuote(symbol: string) {
   const yfSymbol = symbol.endsWith('.BK') ? symbol : `${symbol}.BK`
@@ -33,7 +33,7 @@ export async function getQuote(symbol: string) {
 
 export async function getHistory(symbol: string, period: '3mo' | '6mo' | '1y' | '2y' = '1y') {
   const yfSymbol = symbol.endsWith('.BK') ? symbol : `${symbol}.BK`
-  const result = await yf.historical(yfSymbol, { period1: getPeriodStart(period), interval: '1d' })
+  const result = await yf.historical(yfSymbol, { period1: new Date(getPeriodStart(period)), period2: new Date(), interval: '1d' })
   return result.map((bar) => ({
     date: bar.date.toISOString().split('T')[0],
     open: bar.open ?? 0,
